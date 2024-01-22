@@ -37,7 +37,9 @@
         packages = {
           inherit (csprpkgs)
             casper-node
-            casper-node-launcher;
+            casper-node-launcher
+            casper-client-rs
+            ;
         };
         formatter = pkgs.nixpkgs-fmt;
 

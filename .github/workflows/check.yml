@@ -37,6 +37,14 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node-launcher
 
-      - name: casper-node
+      - name: casper-node-launcher
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node-launcher
+
+      - name: casper-client-rs
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-client-rs
+
+      - name: casper-client-rs
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-client-rs
