@@ -31,8 +31,14 @@
     eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        csprpkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
       in
       {
+        packages = {
+          inherit (csprpkgs)
+            casper-node
+            casper-node-launcher;
+        };
         formatter = pkgs.nixpkgs-fmt;
 
         checks.format = pkgs.runCommand "format-check" { buildInputs = [ pkgs.nixpkgs-fmt ]; } ''
