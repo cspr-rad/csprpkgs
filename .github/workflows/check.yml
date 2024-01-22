@@ -1,0 +1,50 @@
+name: check
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: System Info
+        run: |
+          uname -a
+          nix --version
+
+      - name: format
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#checks.x86_64-linux.format
+
+      - name: casper-node
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node
+
+      - name: casper-node
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node
+
+      - name: casper-node-launcher
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node-launcher
+
+      - name: casper-node-launcher
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node-launcher
+
+      - name: casper-client-rs
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-client-rs
+
+      - name: casper-client-rs
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-client-rs
