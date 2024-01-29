@@ -58,6 +58,7 @@
             casper-node-contracts
             casper-node-launcher
             casper-client-rs
+            cctl
             ;
         };
         formatter = pkgs.nixpkgs-fmt;
