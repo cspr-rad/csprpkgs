@@ -2,8 +2,12 @@
   description = "A collection of casper related packages";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-  outputs = { self, nixpkgs, ... }:
+  outputs = { self, nixpkgs, rust-overlay, ... }:
     let
       eachSystem = systems: f:
         let
@@ -30,13 +34,14 @@
     in
     eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
         csprpkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
       in
       {
         packages = {
           inherit (csprpkgs)
             casper-node
+            casper-node-contracts
             casper-node-launcher
             casper-client-rs
             ;
