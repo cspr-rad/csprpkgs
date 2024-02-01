@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, macos-14]
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
@@ -25,34 +25,50 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#checks.x86_64-linux.format
 
-      - name: casper-node
+      - name: casper-node (x86_64-linux)
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node
 
-      - name: casper-node
+      - name: casper-node (x86_64-darwin)
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node
 
-      - name: casper-node-launcher
+      - name: casper-node aarch64-darwin
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.casper-node
+
+      - name: casper-node-launcher (x86_64-linux)
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node-launcher
 
-      - name: casper-node-launcher
+      - name: casper-node-launcher (x86_64-darwin)
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node-launcher
 
-      - name: casper-client-rs
+      - name: casper-node-launcher (aarch64-darwin)
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.casper-node-launcher
+
+      - name: casper-client-rs (x86_64-linux)
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-client-rs
 
-      - name: casper-client-rs
+      - name: casper-client-rs (x86_64-darwin)
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-client-rs
 
-      - name: casper-node-contracts
+      - name: casper-client-rs (aarch64-darwin)
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.casper-client-rs
+
+      - name: casper-node-contracts (x86_64-linux)
         if: matrix.os == 'ubuntu-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node-contracts
 
-      - name: casper-node-contracts
+      - name: casper-node-contracts (x86_64-darwin)
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node-contracts
+
+      - name: casper-node-contracts (aarch64-darwin)
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.casper-node-contracts
