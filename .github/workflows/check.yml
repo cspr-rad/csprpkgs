@@ -48,3 +48,11 @@ jobs:
       - name: casper-client-rs
         if: matrix.os == 'macos-latest'
         run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-client-rs
+
+      - name: casper-node-contracts
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.casper-node-contracts
+
+      - name: casper-node-contracts
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.casper-node-contracts
