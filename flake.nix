@@ -1,5 +1,15 @@
 {
   description = "A collection of casper related packages";
+
+  nixConfig = {
+    extra-substituters = [
+      "https://cspr.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "cspr.cachix.org-1:vEZlmbOsmTXkmEi4DSdqNVyq25VPNpmSm6qCs4IuTgE="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     rust-overlay = {
@@ -7,6 +17,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
+
   outputs = { self, nixpkgs, rust-overlay, ... }:
     let
       eachSystem = systems: f:
