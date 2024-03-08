@@ -43,7 +43,10 @@
         "x86_64-linux"
       ];
     in
-    eachDefaultSystem (system:
+    {
+      herculesCI.ciSystems = [ "x86_64-linux" ];
+    }
+    // eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
         csprpkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
