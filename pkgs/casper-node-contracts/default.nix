@@ -15,17 +15,17 @@ in
   rustc = rust-wasm32;
 }).buildRustPackage rec {
   pname = "casper-node-contracts";
-  version = "1.5.4";
+  version = "1.5.6";
 
   src = fetchFromGitHub {
     owner = "casper-network";
     repo = "casper-node";
     rev = "v${version}";
-    sha256 = "sha256-Sr92fOFdso4XFMEDLkDj0BsvSt4oa+MDe1/XckiqqXk=";
+    sha256 = "sha256-Jm5f8gzX5HYkQMjEI4dV3ooVPyxhpf/lGyryyuAapqI=";
   };
 
 
-  cargoHash = "sha256-K7KbDRRnWcAjbEkj+cNWxv0lUjyET82aWcCdjFFhyHk=";
+  cargoHash = "sha256-SuwUX/g00HzxLWdv1yNU4Jj4oHCvYwg6dyGnFtG8rJo=";
 
   buildPhase = ''
     contracts=(
