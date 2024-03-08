@@ -75,3 +75,15 @@ jobs:
       - name: casper-node-contracts (aarch64-darwin)
         if: matrix.os == 'macos-14'
         run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.casper-node-contracts
+
+      - name: cctl (x86_64-linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-linux.cctl
+
+      - name: cctl (x86_64-darwin)
+        if: matrix.os == 'macos-latest'
+        run: nix build -L --no-link --show-trace .#packages.x86_64-darwin.cctl
+
+      - name: cctl (aarch64-darwin)
+        if: matrix.os == 'macos-14'
+        run: nix build -L --no-link --show-trace .#packages.aarch64-darwin.cctl
