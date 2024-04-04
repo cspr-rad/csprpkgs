@@ -49,7 +49,7 @@
     // eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
-        csprpkgs = pkgs.recurseIntoAttrs (pkgs.callPackage ./pkgs { });
+        csprpkgs = pkgs.callPackage ./scope.nix { makeScope = pkgs.lib.makeScope; };
       in
       {
         packages = {
