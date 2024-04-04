@@ -45,6 +45,7 @@
     in
     {
       herculesCI.ciSystems = [ "x86_64-linux" ];
+      overlays.default = import ./overlay.nix;
     }
     // eachDefaultSystem (system:
       let
