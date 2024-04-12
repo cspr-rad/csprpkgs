@@ -13,11 +13,23 @@ let
   versionsAndHashes = {
     "1.5.6" = "sha256-2N2vPKHLKV32RzzZPV004hWH1/lbeZUf3WofTVm+ZZI=";
   };
-  defaultConfigsSrc = pkgs.fetchFromGitHub {
-    owner = "casper-network";
-    repo = "casper-protocol-release";
-    rev = "refs/tags/casper-${cfg.package.version}";
-    hash = versionsAndHashes.${cfg.package.version};
+  defaultConfigsSrc = {
+    "production" =
+      pkgs.fetchFromGitHub {
+        owner = "casper-network";
+        repo = "casper-protocol-release";
+        rev = "refs/tags/casper-${cfg.package.version}";
+        hash = versionsAndHashes.${cfg.package.version};
+      };
+    "local" = cfg.package.src.outPath;
+  };
+  chainspecTomlSrc = {
+    "production" = "${defaultConfigsSrc."production"}/config/chainspec.toml";
+    "local" = "${defaultConfigsSrc."local"}/resources/local/chainspec.toml.in";
+  };
+  defaultNodeConfigTomlSrc = {
+    "production" = "${defaultConfigsSrc."production"}/config/config-example.toml";
+    "local" = "${defaultConfigsSrc."local"}/resources/local/config.toml";
   };
 in
 {
@@ -27,6 +39,14 @@ in
 
     package = mkOption {
       type = types.package;
+    };
+
+    genesisConfig = mkOption {
+      type = types.enum [ "production" "local" ];
+      default = "production";
+      description = ''
+        The genesis config type to use.
+      '';
     };
 
     port = mkOption {
@@ -97,24 +117,21 @@ in
 
     users.groups.casper-node = { };
 
-    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/chainspec.toml".source = "${defaultConfigsSrc}/config/chainspec.toml";
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/chainspec.toml".source = chainspecTomlSrc.${cfg.genesisConfig};
     environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/config.toml" =
       let
-        defaultConfig = builtins.fromTOML (builtins.readFile "${defaultConfigsSrc}/config/config-example.toml");
+        defaultNodeConfig = builtins.fromTOML (builtins.readFile defaultNodeConfigTomlSrc.${cfg.genesisConfig});
 
-        config = lib.recursiveUpdate defaultConfig {
+        finalNodeConfig = lib.recursiveUpdate defaultNodeConfig {
           network = {
             bind_address = "0.0.0.0:${builtins.toString cfg.port}";
             public_address = "${cfg.publicAddress}";
           };
           consensus.secret_key_path = cfg.validatorSecretKeyPath;
         };
-
-        format = pkgs.formats.toml { };
-        configTomlFile = format.generate "config.toml" config;
       in
       {
-        source = configTomlFile;
+        source = (pkgs.formats.toml { }).generate "config.toml" finalNodeConfig;
       };
   };
 }
