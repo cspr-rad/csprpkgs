@@ -126,12 +126,29 @@ in
 
     users.groups.casper-node = { };
 
-    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/chainspec.toml".source = chainspecTomlSrc.${cfg.genesisConfig};
-    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/config.toml" =
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/chainspec.toml".source =
+      if cfg.genesisConfig == "production" then chainspecTomlSrc.${cfg.genesisConfig}
+      else
+        let
+          defaultChainspec = builtins.fromTOML (builtins.readFile chainspecTomlSrc."local");
+          finalChainspec = lib.recursiveUpdate defaultChainspec {
+            protocol.version = cfg.package.version;
+            protocol.activation_point = "1970-01-01T01:00:30.000000Z";
+          };
+        in
+        (pkgs.formats.toml { }).generate "config.toml" finalChainspec;
+
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/accounts.toml" = mkIf (cfg.genesisConfig == "local") {
+      source = "${defaultConfigsSrc."local"}/resources/local/accounts.toml";
+    };
+
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/config.toml".source =
       let
         defaultNodeConfig = builtins.fromTOML (builtins.readFile defaultNodeConfigTomlSrc.${cfg.genesisConfig});
 
         finalNodeConfig = lib.recursiveUpdate defaultNodeConfig {
+          storage.path = "/var/lib/casper/casper-node"; # TODO get this programatically
+          diagnostics_port.enabled = false; # TODO this is false in production but true in local
           network = {
             bind_address = "0.0.0.0:${builtins.toString cfg.port}";
             public_address = "${cfg.publicAddress}";
@@ -142,8 +159,6 @@ in
           consensus.secret_key_path = cfg.validatorSecretKeyPath;
         };
       in
-      {
-        source = (pkgs.formats.toml { }).generate "config.toml" finalNodeConfig;
-      };
+      (pkgs.formats.toml { }).generate "config.toml" finalNodeConfig;
   };
 }
