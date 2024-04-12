@@ -66,6 +66,15 @@ in
       '';
     };
 
+    knownAddresses = mkOption {
+      type = with types; nullOr (listOf str);
+      default = null;
+      example = [ "https://casper.network:0" ];
+      description = ''
+        The public addresses of other nodes to connect to in order to join the network.
+      '';
+    };
+
     logLevel = mkOption {
       type = types.str;
       default = "info";
@@ -126,6 +135,9 @@ in
           network = {
             bind_address = "0.0.0.0:${builtins.toString cfg.port}";
             public_address = "${cfg.publicAddress}";
+          }
+          // lib.optionalAttrs (!builtins.isNull cfg.knownAddresses) {
+            known_addresses = cfg.knownAddresses;
           };
           consensus.secret_key_path = cfg.validatorSecretKeyPath;
         };
