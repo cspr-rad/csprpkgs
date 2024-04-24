@@ -16,9 +16,13 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, ... }:
+  outputs = { self, nixpkgs, rust-overlay, agenix, ... }:
     let
       eachSystem = systems: f:
         let
@@ -43,31 +47,50 @@
         "x86_64-linux"
       ];
     in
-    {
-      herculesCI.ciSystems = [ "x86_64-linux" ];
-      overlays.default = import ./overlay.nix;
-    }
-    // eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
-        csprpkgs = pkgs.callPackage ./scope.nix { makeScope = pkgs.lib.makeScope; };
-      in
+    nixpkgs.lib.recursiveUpdate
       {
-        packages = {
-          inherit (csprpkgs)
-            casper-node
-            casper-node-contracts
-            casper-node-launcher
-            casper-client-rs
-            ;
-        };
-        formatter = pkgs.nixpkgs-fmt;
+        herculesCI.ciSystems = [ "x86_64-linux" "aarch64-linux" ];
 
-        checks.format = pkgs.runCommand "format-check" { buildInputs = [ pkgs.nixpkgs-fmt ]; } ''
-          set -euo pipefail
-          cd ${self}
-          nixpkgs-fmt --check .
-          touch $out
-        '';
-      });
+        overlays.default = import ./overlay.nix;
+
+        nixosModules.casper-node =
+          { pkgs, lib, ... }:
+          {
+            imports = [ ./nixos/modules/casper-node.nix ];
+            services.casper-node.package = self.packages.${pkgs.system}.casper-node;
+          };
+
+        checks.x86_64-linux.casper-node-smoke-test =
+          let
+            pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          in
+          pkgs.callPackage ./nixos/tests/casper-node/smoke-test.nix {
+            casperNodeModule = self.nixosModules.casper-node;
+            agenixModule = agenix.nixosModules.age;
+          };
+      }
+      (eachDefaultSystem (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system}.extend (import rust-overlay);
+          csprpkgs = pkgs.callPackage ./scope.nix { makeScope = pkgs.lib.makeScope; };
+        in
+        {
+          packages = {
+            inherit (csprpkgs)
+              casper-node
+              casper-node-contracts
+              casper-node-launcher
+              casper-client-rs
+              ;
+          };
+          formatter = pkgs.nixpkgs-fmt;
+
+          checks.format = pkgs.runCommand "format-check" { buildInputs = [ pkgs.nixpkgs-fmt ]; } ''
+            set -euo pipefail
+            cd ${self}
+            nixpkgs-fmt --check .
+            touch $out
+          '';
+        })
+      );
 }

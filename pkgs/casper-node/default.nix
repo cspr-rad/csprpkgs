@@ -1,4 +1,5 @@
-{ rustPlatform
+{ lib
+, rustPlatform
 , fetchFromGitHub
 , cmake
 , pkg-config
@@ -21,4 +22,11 @@ rustPlatform.buildRustPackage rec {
   buildInputs = [ openssl.dev ];
 
   doCheck = false;
+
+  meta = with lib; {
+    description = "Reference node for the Casper Blockchain Protocol.";
+    homepage = "https://casper.network/";
+    license = licenses.asl20;
+    mainProgram = "casper-node";
+  };
 }
