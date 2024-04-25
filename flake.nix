@@ -60,13 +60,21 @@
             services.casper-node.package = self.packages.${pkgs.system}.casper-node;
           };
 
-        checks.x86_64-linux.casper-node-smoke-test =
+        checks.x86_64-linux =
           let
             pkgs = nixpkgs.legacyPackages.x86_64-linux;
           in
-          pkgs.callPackage ./nixos/tests/casper-node/smoke-test.nix {
-            casperNodeModule = self.nixosModules.casper-node;
-            agenixModule = agenix.nixosModules.age;
+          {
+            casper-node-smoke-test =
+              pkgs.callPackage ./nixos/tests/casper-node/smoke-test.nix {
+                casperNodeModule = self.nixosModules.casper-node;
+                agenixModule = agenix.nixosModules.age;
+              };
+            casper-node-private-network-test =
+              pkgs.callPackage ./nixos/tests/casper-node/private-network-test.nix {
+                casperNodeModule = self.nixosModules.casper-node;
+                inherit (self.packages.x86_64-linux) casper-client-rs;
+              };
           };
       }
       (eachDefaultSystem (system:

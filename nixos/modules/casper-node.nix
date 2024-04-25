@@ -13,11 +13,23 @@ let
   versionsAndHashes = {
     "1.5.6" = "sha256-2N2vPKHLKV32RzzZPV004hWH1/lbeZUf3WofTVm+ZZI=";
   };
-  defaultConfigsSrc = pkgs.fetchFromGitHub {
-    owner = "casper-network";
-    repo = "casper-protocol-release";
-    rev = "refs/tags/casper-${cfg.package.version}";
-    hash = versionsAndHashes.${cfg.package.version};
+  defaultConfigsSrc = {
+    "production" =
+      pkgs.fetchFromGitHub {
+        owner = "casper-network";
+        repo = "casper-protocol-release";
+        rev = "refs/tags/casper-${cfg.package.version}";
+        hash = versionsAndHashes.${cfg.package.version};
+      };
+    "local" = cfg.package.src.outPath;
+  };
+  chainspecTomlSrc = {
+    "production" = "${defaultConfigsSrc."production"}/config/chainspec.toml";
+    "local" = "${defaultConfigsSrc."local"}/resources/local/chainspec.toml.in";
+  };
+  defaultNodeConfigTomlSrc = {
+    "production" = "${defaultConfigsSrc."production"}/config/config-example.toml";
+    "local" = "${defaultConfigsSrc."local"}/resources/local/config.toml";
   };
 in
 {
@@ -27,6 +39,14 @@ in
 
     package = mkOption {
       type = types.package;
+    };
+
+    genesisConfig = mkOption {
+      type = types.enum [ "production" "local" ];
+      default = "production";
+      description = ''
+        The genesis config type to use.
+      '';
     };
 
     port = mkOption {
@@ -43,6 +63,15 @@ in
       example = "https://casper.network:0";
       description = ''
         The public address other peer nodes should connect to.
+      '';
+    };
+
+    knownAddresses = mkOption {
+      type = with types; nullOr (listOf str);
+      default = null;
+      example = [ "https://casper.network:0" ];
+      description = ''
+        The public addresses of other nodes to connect to in order to join the network.
       '';
     };
 
@@ -97,24 +126,39 @@ in
 
     users.groups.casper-node = { };
 
-    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/chainspec.toml".source = "${defaultConfigsSrc}/config/chainspec.toml";
-    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/config.toml" =
-      let
-        defaultConfig = builtins.fromTOML (builtins.readFile "${defaultConfigsSrc}/config/config-example.toml");
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/chainspec.toml".source =
+      if cfg.genesisConfig == "production" then chainspecTomlSrc.${cfg.genesisConfig}
+      else
+        let
+          defaultChainspec = builtins.fromTOML (builtins.readFile chainspecTomlSrc."local");
+          finalChainspec = lib.recursiveUpdate defaultChainspec {
+            protocol.version = cfg.package.version;
+            protocol.activation_point = "1970-01-01T01:00:30.000000Z";
+          };
+        in
+        (pkgs.formats.toml { }).generate "config.toml" finalChainspec;
 
-        config = lib.recursiveUpdate defaultConfig {
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/accounts.toml" = mkIf (cfg.genesisConfig == "local") {
+      source = "${defaultConfigsSrc."local"}/resources/local/accounts.toml";
+    };
+
+    environment.etc."casper/${mapDotsToUnderscore cfg.package.version}/config.toml".source =
+      let
+        defaultNodeConfig = builtins.fromTOML (builtins.readFile defaultNodeConfigTomlSrc.${cfg.genesisConfig});
+
+        finalNodeConfig = lib.recursiveUpdate defaultNodeConfig {
+          storage.path = "/var/lib/casper/casper-node"; # TODO get this programatically
+          diagnostics_port.enabled = false; # TODO this is false in production but true in local
           network = {
             bind_address = "0.0.0.0:${builtins.toString cfg.port}";
             public_address = "${cfg.publicAddress}";
+          }
+          // lib.optionalAttrs (!builtins.isNull cfg.knownAddresses) {
+            known_addresses = cfg.knownAddresses;
           };
           consensus.secret_key_path = cfg.validatorSecretKeyPath;
         };
-
-        format = pkgs.formats.toml { };
-        configTomlFile = format.generate "config.toml" config;
       in
-      {
-        source = configTomlFile;
-      };
+      (pkgs.formats.toml { }).generate "config.toml" finalNodeConfig;
   };
 }
