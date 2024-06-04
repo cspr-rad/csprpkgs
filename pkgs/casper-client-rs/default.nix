@@ -1,13 +1,17 @@
 { rustPlatform
 , fetchFromGitHub
-, makeWrapper
-, casper-node
 , lib
 , pkg-config
 , openssl
 , stdenv
 , darwin
+, writeShellScriptBin
 }:
+let
+  git-mock = writeShellScriptBin "git" ''
+    echo "got ya"
+  '';
+in
 rustPlatform.buildRustPackage rec {
   pname = "casper-client-rs";
   version = "2.0.0";
@@ -15,8 +19,8 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "casper-ecosystem";
     repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-QIU4KgjWs7Qr5u90yrSrFTX8CmluxWWRWKbwqHnWI18=";
+    rev = "6b61f160a536fafbfb541b1ecb20d05a8e666fd3";
+    sha256 = "sha256-faLzUuyqz8lYRGqWa9KVVEYU8wQyr17tROiz98EyQ2g=";
   };
 
   cargoPatches = [
@@ -26,11 +30,11 @@ rustPlatform.buildRustPackage rec {
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      "casper-hashing-2.0.0" = "sha256-9BEPnvo3UK21CU68z9nkgT0ye6xSPf3/MazbWieU7v8=";
+      "casper-hashing-3.0.0" = "sha256-cknUJr2jgIi1974mt1tyE+2ayMd1c+azMabrdWar8yY=";
     };
   };
 
-  nativeBuildInputs = [ pkg-config ];
+  nativeBuildInputs = [ pkg-config git-mock ];
 
   buildInputs = [
     openssl.dev
