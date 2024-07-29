@@ -86,6 +86,7 @@
           packages = {
             inherit (csprpkgs)
               casper-node
+              casper-node_2
               casper-node-contracts
               casper-node-launcher
               casper-client-rs
