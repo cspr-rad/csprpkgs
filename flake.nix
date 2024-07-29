@@ -90,6 +90,7 @@
               casper-node-contracts
               casper-node-launcher
               casper-client-rs
+              casper-sidecar
               ;
           };
           formatter = pkgs.nixpkgs-fmt;
