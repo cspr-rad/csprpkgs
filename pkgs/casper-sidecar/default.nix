@@ -3,6 +3,8 @@
 , fetchFromGitHub
 , pkg-config
 , openssl
+, stdenv
+, darwin
 }:
 rustPlatform.buildRustPackage rec {
   pname = "casper-sidecar";
@@ -16,7 +18,11 @@ rustPlatform.buildRustPackage rec {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ openssl.dev ];
+  buildInputs = [
+    openssl.dev
+  ] ++ lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk.frameworks.SystemConfiguration
+  ];
 
   doCheck = false; # pg-embed tries to download postgresql binaries when running the tests
 
