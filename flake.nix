@@ -4,9 +4,11 @@
   nixConfig = {
     extra-substituters = [
       "https://cspr.cachix.org"
+      "https://casper-cache.marijan.pro"
     ];
     extra-trusted-public-keys = [
       "cspr.cachix.org-1:vEZlmbOsmTXkmEi4DSdqNVyq25VPNpmSm6qCs4IuTgE="
+      "casper-cache.marijan.pro:XIDjpzFQTEuWbnRu47IqSOy6IqyZlunVGvukNROL850="
     ];
   };
 
