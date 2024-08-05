@@ -3,8 +3,7 @@
 , rust-bin
 }:
 let
-  rust-wasm32 = rust-bin.nightly."2023-03-25".default.override {
-    extensions = [ ];
+  rust-wasm32 = rust-bin.nightly.latest.default.override {
     targets = [
       "wasm32-unknown-unknown"
     ];
@@ -15,17 +14,17 @@ in
   rustc = rust-wasm32;
 }).buildRustPackage rec {
   pname = "casper-node-contracts";
-  version = "1.5.6";
+  version = "1.5.7";
 
   src = fetchFromGitHub {
     owner = "casper-network";
     repo = "casper-node";
-    rev = "v${version}";
-    sha256 = "sha256-Jm5f8gzX5HYkQMjEI4dV3ooVPyxhpf/lGyryyuAapqI=";
+    rev = "release-${version}";
+    hash = "sha256-4il4mGHQNWfUvN6siej9DTzGTJF5l+O1a9nwbHlB3Q8=";
   };
 
 
-  cargoHash = "sha256-SuwUX/g00HzxLWdv1yNU4Jj4oHCvYwg6dyGnFtG8rJo=";
+  cargoHash = "sha256-aK3AFeDey53EH+UAdJPLkkJ1KMm+Z6X9PRQtd2E7cqw=";
 
   buildPhase = ''
     contracts=(
