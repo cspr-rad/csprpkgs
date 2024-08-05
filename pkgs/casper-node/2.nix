@@ -13,7 +13,7 @@ rustPlatform.buildRustPackage rec {
     owner = "casper-network";
     repo = "casper-node";
     rev = "feat-${version}";
-    sha256 = "sha256-rk4teBZ42yJVNSRV07Xg10PtA1JsDG59jdNsVegZnzw=";
+    hash = "sha256-rk4teBZ42yJVNSRV07Xg10PtA1JsDG59jdNsVegZnzw=";
   };
 
   cargoHash = "sha256-jyJsFRRCr/K2z4cfqblmWQK2q2TVP+3osWqAzk9S2sQ=";
