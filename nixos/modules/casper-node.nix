@@ -11,7 +11,8 @@ let
 
   mapDotsToUnderscore = lib.stringAsChars (c: if c == "." then "_" else c);
   versionsAndHashes = {
-    "1.5.6" = "sha256-2N2vPKHLKV32RzzZPV004hWH1/lbeZUf3WofTVm+ZZI=";
+    "1.5.6" = lib.warn "1.5.6 has a security vulnerability, please use 1.5.7" "sha256-2N2vPKHLKV32RzzZPV004hWH1/lbeZUf3WofTVm+ZZI=";
+    "1.5.7" = "sha256-apV8lENP1Xnnud8Pm4qy7C4QoNFweJc6eUDmnctoZz4=";
   };
   defaultConfigsSrc = {
     "production" =
@@ -35,7 +36,7 @@ in
 {
   options.services.casper-node = {
 
-    enable = mkEnableOption ("casper-node");
+    enable = mkEnableOption "casper-node";
 
     package = mkOption {
       type = types.package;
