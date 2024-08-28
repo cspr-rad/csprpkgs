@@ -6,15 +6,15 @@
 , stdenv
 , darwin
 }:
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "casper-sidecar";
-  version = "2.0";
+  version = "1.0.0rc2";
 
   src = fetchFromGitHub {
     owner = "casper-network";
     repo = "casper-sidecar";
-    rev = "feat-${version}";
-    hash = "sha256-XVQVS0wqkufnazzgRo1HosnPIkyptl6AeJYQOAWN/O8=";
+    rev = "release-1.0.0rc2_node-2.0.0rc3";
+    hash = "sha256-Dz5Q7+6AkHSD+ut3jIkyulkZGwfAkskE770oZoY8dCg=";
   };
 
   nativeBuildInputs = [ pkg-config ];
@@ -30,8 +30,9 @@ rustPlatform.buildRustPackage rec {
     lockFile = ./Cargo.lock;
     outputHashes = {
       "archiver-rs-0.5.1" = "sha256-ZIik0mMABmhdx/ullgbOrKH5GAtqcOKq5A6vB7aBSjk=";
-      "casper-binary-port-1.0.0" = "sha256-9FFur8DvRZjup+tjT2+Gr/LCk10qYGwQnsfceOXcbBg=";
+      "casper-binary-port-1.0.0" = "sha256-V8dRuVw0rgBatPfDpFl4LjzFSfOi0EHa20a7zj7v1+w=";
       "pg-embed-0.7.2" = "sha256-ot0sQg2+KRI6SOC7wKJ2l6Lde0fcwulxoRaxrpr/6z4=";
+
     };
   };
 
