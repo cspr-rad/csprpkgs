@@ -7,16 +7,16 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "casper-node";
-  version = "1.5.7";
+  version = "1.5.8";
 
   src = fetchFromGitHub {
     owner = "casper-network";
     repo = "casper-node";
     rev = "release-${version}";
-    hash = "sha256-4il4mGHQNWfUvN6siej9DTzGTJF5l+O1a9nwbHlB3Q8=";
+    hash = "sha256-KrWuoYxalEAJylTc3JvBEVb0UqYuUtdogbKVi9rV8Yg=";
   };
 
-  cargoHash = "sha256-AbxeP9GRH8lQsHwYiErh/SaAqu1dvTcwaasL0v7xCoU=";
+  cargoHash = "sha256-PBm4aPXH0oU8Uirbpzei4veiKMVPJeHEZKICEdGcihY=";
 
   nativeBuildInputs = [ pkg-config cmake ];
   buildInputs = [ openssl.dev ];
