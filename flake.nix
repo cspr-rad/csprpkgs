@@ -92,6 +92,7 @@
               casper-node-contracts
               casper-node-launcher
               casper-client-rs
+              casper-client-rs_2
               casper-sidecar
               ;
           };
