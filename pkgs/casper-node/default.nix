@@ -4,6 +4,8 @@
 , cmake
 , pkg-config
 , openssl
+, removeReferencesTo
+, cargo
 }:
 rustPlatform.buildRustPackage rec {
   pname = "casper-node";
@@ -18,10 +20,14 @@ rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-AbxeP9GRH8lQsHwYiErh/SaAqu1dvTcwaasL0v7xCoU=";
 
-  nativeBuildInputs = [ pkg-config cmake ];
+  nativeBuildInputs = [ pkg-config cmake removeReferencesTo ];
   buildInputs = [ openssl.dev ];
 
   doCheck = false;
+
+  postInstall = ''
+    find "$out" -type f -exec remove-references-to -t ${cargo} '{}' +
+  '';
 
   meta = with lib; {
     description = "Reference node for the Casper Blockchain Protocol.";
