@@ -3,10 +3,8 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://cspr.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "cspr.cachix.org-1:vEZlmbOsmTXkmEi4DSdqNVyq25VPNpmSm6qCs4IuTgE="
     ];
   };
 
